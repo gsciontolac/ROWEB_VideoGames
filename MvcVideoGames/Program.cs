@@ -1,4 +1,9 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using MvcVideoGames.Data;
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<MvcVideoGamesContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MvcVideoGamesContext") ?? throw new InvalidOperationException("Connection string 'MvcVideoGamesContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -22,6 +27,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=VideoGames}/{action=Index}");
 
 app.Run();
