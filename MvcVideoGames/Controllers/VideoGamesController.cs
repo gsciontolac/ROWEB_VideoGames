@@ -20,32 +20,54 @@ namespace MvcVideoGames.Controllers
         }
 
         // GET: VideoGames
-        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string filterType, string searchString)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string filterType, string searchString, int? pageNumber, int itemsPerPage)
         {
-            ViewData["TitleSortParam"] = string.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
-            ViewData["ReleaseDateSortParam"] = sortOrder == "ReleaseDate" ? "releaseDate_desc" : "ReleaseDate";
-            ViewData["GenreSortParam"] = sortOrder == "Genre" ? "genre_desc" : "Genre";
-            ViewData["PriceSortParam"] = sortOrder == "Price" ? "price_desc" : "Price";
+            ViewData["TitleSortParam"] = string.IsNullOrEmpty(sortOrder) ? "Title_desc" : "";
+            ViewData["ReleaseDateSortParam"] = sortOrder == "ReleaseDate" ? "ReleaseDate_desc" : "ReleaseDate";
+            ViewData["GenreSortParam"] = sortOrder == "Genre" ? "Genre_desc" : "Genre";
+            ViewData["PriceSortParam"] = sortOrder == "Price" ? "Price_desc" : "Price";
             ViewData["CurrentType"] = string.IsNullOrEmpty(filterType) ? null : filterType;
-            
+            ViewData["PageNumber"] = pageNumber;
+            ViewData["ItemsPerPage"] = itemsPerPage;
+
+            if (itemsPerPage == 0)
+                itemsPerPage = 3;
 
             var videoGames = from v in _context.VideoGames
                            select v;
             if(searchString != null)
             {
-
+                pageNumber = 1;
             }
             else
             {
                 searchString = currentFilter;
             }
             ViewData["CurrentFilter"] = searchString;
+            bool desc = false;
+
+            if (string.IsNullOrEmpty(sortOrder))
+                sortOrder = "Title";
+
+            if(sortOrder.EndsWith("_desc"))
+            {
+                sortOrder = sortOrder.Substring(0, sortOrder.Length - 5);
+                desc = true;
+            }
+
             //verificam daca pretul e nr
             decimal temp;
             if(filterType == "Price" && !decimal.TryParse(searchString, out temp))
             {
                 ViewData["InputError"] = "Price is not a number!";
-                return View(videoGames);
+                if (desc)
+                {
+                    return View(await PaginatedList<VideoGames>.CreateAsyncSortDesc(videoGames, pageNumber ?? 1, itemsPerPage, sortOrder));
+                }
+                else
+                {
+                    return View(await PaginatedList<VideoGames>.CreateAsyncSorted(videoGames, pageNumber ?? 1, itemsPerPage, sortOrder));
+                }
             }
 
             if(!string.IsNullOrEmpty(searchString))
@@ -53,7 +75,7 @@ namespace MvcVideoGames.Controllers
                 videoGames = videoGames.Where(v => EF.Property<object>(v, filterType) == searchString);
             }
 
-            switch (sortOrder)
+            /*switch (sortOrder)
             {
                 case "title_desc":
                     videoGames = videoGames.OrderByDescending(v => v.Title);
@@ -81,8 +103,19 @@ namespace MvcVideoGames.Controllers
                 default:
                     videoGames = videoGames.OrderBy(v => v.Title);
                     break;
+            }*/
+
+        
+            
+            if(desc)
+            {
+                return View(await PaginatedList<VideoGames>.CreateAsyncSortDesc(videoGames, pageNumber ?? 1, itemsPerPage, sortOrder));
             }
-            return View(await videoGames.AsNoTracking().ToListAsync());
+            else
+            {
+                return View(await PaginatedList<VideoGames>.CreateAsyncSorted(videoGames, pageNumber ?? 1, itemsPerPage, sortOrder));
+            }
+
         }
 
         // GET: VideoGames/Details/5

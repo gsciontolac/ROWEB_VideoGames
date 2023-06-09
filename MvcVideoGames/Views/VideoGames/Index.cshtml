@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MvcVideoGames.Models.VideoGames>
+﻿@model PaginatedList<MvcVideoGames.Models.VideoGames>
 
 @{
     ViewData["Title"] = "Video Games";
@@ -72,3 +72,16 @@
 }
     </tbody>
 </table>
+
+@for(int i=1; i<=Model.TotalPages; i++)
+{
+    <a asp-action="Index"
+    asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@i"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   asp-route-filterType="@ViewData["CurrentType"]"
+   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
+   class="btn btn-default">
+       @i
+   </a>
+}
