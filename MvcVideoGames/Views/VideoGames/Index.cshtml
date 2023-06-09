@@ -9,20 +9,41 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<p class="text-danger text-center">
+    @ViewData["InputError"]
+
+</p>
+
+<form asp-action="Index" method="post">
+    <div class="form-actions no-color">
+        <p>
+            Find by:
+            <select id="FilterType" name="FilterType">
+                <option value="Title">Title</option>
+                <option value="Genre">Genre</option>
+                <option value="Price">Price</option>
+            </select>
+            <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" /> |
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-action="Index">Back to Full List</a>
+        </p>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                <a asp-action="Index" asp-route-filterType="@ViewData["CurrentType"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-sortOrder="@ViewData["TitleSortParam"]">Title</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReleaseDate)
+                <a asp-action="Index" asp-route-filterType="@ViewData["CurrentType"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-sortOrder="@ViewData["ReleaseDateSortParam"]">Release Date</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Genre)
+                <a asp-action="Index" asp-route-filterType="@ViewData["CurrentType"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-sortOrder="@ViewData["GenreSortParam"]">Genre</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                <a asp-action="Index" asp-route-filterType="@ViewData["CurrentType"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-sortOrder="@ViewData["GenreSortParam"]">Price</a>
             </th>
             <th></th>
         </tr>
@@ -40,7 +61,7 @@
                 @Html.DisplayFor(modelItem => item.Genre)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Price)
+                @Html.DisplayFor(modelItem => item.Price)$
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

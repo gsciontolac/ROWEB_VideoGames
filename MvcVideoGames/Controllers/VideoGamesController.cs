@@ -20,11 +20,69 @@ namespace MvcVideoGames.Controllers
         }
 
         // GET: VideoGames
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string filterType, string searchString)
         {
-              return _context.VideoGames != null ? 
-                          View(await _context.VideoGames.ToListAsync()) :
-                          Problem("Entity set 'MvcVideoGamesContext.VideoGames'  is null.");
+            ViewData["TitleSortParam"] = string.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            ViewData["ReleaseDateSortParam"] = sortOrder == "ReleaseDate" ? "releaseDate_desc" : "ReleaseDate";
+            ViewData["GenreSortParam"] = sortOrder == "Genre" ? "genre_desc" : "Genre";
+            ViewData["PriceSortParam"] = sortOrder == "Price" ? "price_desc" : "Price";
+            ViewData["CurrentType"] = string.IsNullOrEmpty(filterType) ? null : filterType;
+            
+
+            var videoGames = from v in _context.VideoGames
+                           select v;
+            if(searchString != null)
+            {
+
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewData["CurrentFilter"] = searchString;
+            //verificam daca pretul e nr
+            decimal temp;
+            if(filterType == "Price" && !decimal.TryParse(searchString, out temp))
+            {
+                ViewData["InputError"] = "Price is not a number!";
+                return View(videoGames);
+            }
+
+            if(!string.IsNullOrEmpty(searchString))
+            {
+                videoGames = videoGames.Where(v => EF.Property<object>(v, filterType) == searchString);
+            }
+
+            switch (sortOrder)
+            {
+                case "title_desc":
+                    videoGames = videoGames.OrderByDescending(v => v.Title);
+                    break;
+                case "Genre":
+                    videoGames = videoGames.OrderBy(v => v.Genre);
+                    break;
+                case "genre_desc":
+                    videoGames = videoGames.OrderByDescending(v => v.Genre);
+                    break;
+                case "ReleaseDate":
+                    videoGames = videoGames.OrderBy(v => v.ReleaseDate);
+                    break;
+                case "releaseDate_desc":
+                    videoGames = videoGames.OrderByDescending(v => v.ReleaseDate);
+                    break;
+                case "Price":
+                    videoGames = videoGames.OrderBy(v => v.Price);
+                    break;
+                case "price_desc":
+                    videoGames = videoGames.OrderByDescending(v => v.Price);
+                    break;
+
+
+                default:
+                    videoGames = videoGames.OrderBy(v => v.Title);
+                    break;
+            }
+            return View(await videoGames.AsNoTracking().ToListAsync());
         }
 
         // GET: VideoGames/Details/5
