@@ -17,3 +17,12 @@ body {
   margin-bottom: 60px;
 }
 
+.btn-primary {
+    color: #fff;
+    background-color: #00351D;
+}
+
+.btn-default {
+    color: #fff;
+    background-color: #00351D;
+}
