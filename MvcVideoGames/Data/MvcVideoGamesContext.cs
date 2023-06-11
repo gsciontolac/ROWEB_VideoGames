@@ -15,5 +15,6 @@ namespace MvcVideoGames.Data
         }
 
         public DbSet<MvcVideoGames.Models.VideoGames> VideoGames { get; set; } = default!;
+        public DbSet<MvcVideoGames.Models.Review>? Review { get; set; }
     }
 }

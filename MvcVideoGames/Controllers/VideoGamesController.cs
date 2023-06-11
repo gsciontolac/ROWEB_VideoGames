@@ -121,19 +121,34 @@ namespace MvcVideoGames.Controllers
         // GET: VideoGames/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+
+            ViewData["VideoGamesId"] = new SelectList(id.ToString().AsEnumerable());
             if (id == null || _context.VideoGames == null)
             {
                 return NotFound();
             }
 
-            var videoGames = await _context.VideoGames
+            var videoGame = await _context.VideoGames
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (videoGames == null)
+            if (videoGame == null)
             {
                 return NotFound();
             }
 
-            return View(videoGames);
+            var reviews = _context.Review.Where(r => r.VideoGamesId == id);
+            var model = new VideoGameReviews() { VideoGame=videoGame, Reviews=reviews };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Details([Bind("Id, UserName, ReviewVideoGame, VideoGamesId")] Review review)
+        {
+            review.CreatedDate = DateTime.Now;
+            _context.Add(review);
+                await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new {id = review.VideoGamesId});
         }
 
         // GET: VideoGames/Create
